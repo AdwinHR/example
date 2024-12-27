@@ -18,14 +18,15 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: Install dependencies and build
+      - name: npm install, build, and test
         run: |
           npm install
-          npm run build
+          npm run build --if-present
+          npm run test --if-present
       - name: Zip artifact for deployment
-        run: zip -r release.zip build/
+        run: zip release.zip ./* -r
 
-      - name: Upload artifact for deployment
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
@@ -36,29 +37,31 @@ jobs:
     needs: build
     environment:
       name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write # Required for Azure authentication
+      id-token: write #This is required for requesting the JWT
 
     steps:
-      - name: Download artifact from build
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
 
-      - name: Unzip artifact
+      - name: Unzip artifact for deployment
         run: unzip release.zip
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5C5E7B69460A4265949A61B5879985BE }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_163F8CDC93824775A9A0449023F08B51 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B040F07BEB9344FAB1B72E8E08A8E199 }}
 
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'adwin-portfolio'
-          package: build/
+          slot-name: 'Production'
+          package: .
 
-          
