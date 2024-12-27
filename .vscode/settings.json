@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/1cc42233-ba1f-4049-bee2-a1ad18b3e76e/resourceGroups/Reactive/providers/Microsoft.Web/sites/reactexample",
+    "appService.deploySubpath": "build"
+}
